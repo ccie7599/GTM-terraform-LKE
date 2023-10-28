@@ -1,0 +1,66 @@
+#!/bin/bash
+# create directories if none exist
+mkdir -p ./kubeconfigs-processed
+mkdir -p ./kubeconfigs-metadata
+mkdir -p ./kubeconfigs-targets
+rm -f targets.tfvars
+KCINPUT="./kubeconfigs-processed/*"
+KCMDT="./kubeconfigs-metadata/"
+KCTARGET="./kubeconfigs-targets/" 
+cat > "property.tf" <<EOF
+resource "akamai_gtm_property" "property" {
+  domain                      = akamai_gtm_domain.domain.name
+  name                        = var.property
+  type                        = "performance"
+  ipv6                        = false
+  score_aggregation_type      = "worst"
+  stickiness_bonus_percentage = 0
+  stickiness_bonus_constant   = 0
+  use_computed_targets        = false
+  balance_by_download_score   = false
+  dynamic_ttl                 = 30
+  handout_limit               = 0
+  handout_mode                = "normal"
+  failover_delay              = 0
+  failback_delay              = 0
+  load_imbalance_percentage   = 1200
+  ghost_demand_reporting      = false
+
+  liveness_test {
+    name                             = "TCP"
+    peer_certificate_verification    = false
+    test_interval                    = 10
+    test_object                      = ""
+    http_error3xx                    = true
+    http_error4xx                    = true
+    http_error5xx                    = true
+    disabled                         = false
+    test_object_protocol             = "TCP"
+    test_object_port                 = 80
+    disable_nonstandard_port_warning = false
+    test_timeout                     = 10
+    answers_required                 = false
+    recursion_requested              = false
+  }
+
+EOF
+for f in $KCINPUT
+do
+echo "processing $f file"
+CLUSTER=$(kubectl config --kubeconfig="$f" view -o jsonpath='{.clusters[*].name}' | sed -e s/lke//g )
+TARGETS=$(kubectl --kubeconfig="$f" get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | sed 's/ /","/g' | sed '1s/^/["/' && echo -n '"]')
+REGION=$(jq .region $KCMDT$CLUSTER-mdt | sed -e 's/"//g') 
+cat >> "property.tf" <<EOF
+  traffic_target {
+    datacenter_id = akamai_gtm_datacenter.$REGION.datacenter_id
+    enabled       = true
+    weight        = 0
+    servers       = $TARGETS
+  }
+EOF
+
+echo "$CLUSTER-target = $TARGETS" >> targets.tfvars
+echo "$CLUSTER-region = $REGION" >> regions.tfvars
+done
+echo "}" >> property.tf
+
