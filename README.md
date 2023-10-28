@@ -4,6 +4,8 @@
 
 These are scripts and Terraform templates designed to automate the process of building an Akamai Global Traffic Management (GTM) domain and property, with backend targets pointing to Linode Kubernetes Engine (LKE) External IP nodes. The script can also be run on any interval to refresh target nodes in the event of autoscaling or node recycling events, ensuring that GTM has fresh targets. The script also includes an Akamai DNS Terraform resource to automate the creation of a CNAME pointing to the GTM property name. 
 
+When deployed, these scripts and terraform give the ability to dynamically provision and maintain a global endpoint via GTM for multi-region LKE clusters, even as nodes and clusters are created and destroyed. 
+
 ## Prerequisites 
 
 - jq, kubectl, terraform installed on the local machine that is running the scripts.
