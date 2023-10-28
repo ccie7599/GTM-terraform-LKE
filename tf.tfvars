@@ -1,0 +1,7 @@
+contractid = "" 
+groupid = ""
+domain = ""
+property = ""
+email = ""
+cn = ""
+zone = ""
