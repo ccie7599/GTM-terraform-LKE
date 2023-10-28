@@ -18,6 +18,8 @@ When deployed, these scripts and terraform give the ability to dynamically provi
 
 - This assumes that the LKE cluster is using Service types of hostNetwork, allowing the K8s pods to utilize the VM's network connections directly. As GTM will effectively serve as a load balancer, the need for a local LB service is diminished, making hostNetwork an effecient choice for cluster ingress.
 
+- The region identification makes use of the Akamai Compute Instance Metadata Service, which is not available in every Compute region currently. 
+
 ## To-do
 
 - Add Liveness check automation
