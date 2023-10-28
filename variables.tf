@@ -37,9 +37,6 @@ variable "groupid" {
   type    = string
 } 
 
- variable "san" {
-  type    = string
-} 
 
  variable "zone" {
   type    = string
