@@ -24,10 +24,17 @@ These are scripts and Terraform templates designed to automate the process of bu
 
 ## Instructions
 
-- clone this repo locally.
+- Clone this repo locally.
 - Place any kubeconfigs that are to be added to the GTM config into the ./kubeconfigs-in directory.
 - Run ```./process-kubeconfigs``` to initially process the kubeconfigs, and re-run as new kubeconfigs are added.
 - Run ```./process-targets``` to scan each cluster for current node External IP addresses and to build the needed Terraform files.
 - Update tf.tfvars with the required variables
--- Akamai 
+  - Akamai contract and group ID (contractid and groupid) (existing, based on your Akamai account)
+  - GTM Domain Name (domain) (Initially new on creation, cannot collide with existing GTM Domain names in use)
+  - GTM Property Name (property) (Initially new on creation, cannot collide with existing GTM Property names in use within the domain)
+  - Common Name (cn) (The DNS name of the CNAME that will point to GTM- must be a DNS domain within same Akamai contract)
+  - Zone (zone) (DNS Zonefile to update with the CNAME record)
+- Run ```terraform init``` to initialize initial terraform state, followed by ```terraform plan --var-file=tf.tfvars``` to validate your terraform plan, and finally ```terraform apply ---var-file=tf.tfvars``` to apply the terraform plan.
+
+Subsqeuent to the inital GTM domain and property creation, ```./process-targets``` can be run to update property.tf with new server targets as nodes are created and destroyed. The new property.tf will then need to be applied in terraform for GTM changes to take effect.
 
