@@ -14,6 +14,8 @@ These are scripts and Terraform templates designed to automate the process of bu
 
 - This assumes a relationship of one region to one cluster. GTM does not allow a config to use traffic targets for a single data center, and in scenarios when two clusters exist in a single datacenter, GTM normally prompts a user to clone the data center. This cloning feature is not yet built into the script, so only a single cluster per data center for now is supported.
 
+- This assumes that the LKE cluster is using Service types of hostNetwork, allowing the K8s pods to utilize the VM's network connections directly. As GTM will effectively serve as a load balancer, the need for a local LB service is diminished, making hostNetwork an effecient choice for cluster ingress.
+
 ## To-do
 
 - Add Liveness check automation
@@ -21,4 +23,11 @@ These are scripts and Terraform templates designed to automate the process of bu
 - Add Ion, CPS, Kona automation for end-to-end Akamai Provisioning
 
 ## Instructions
+
+- clone this repo locally.
+- Place any kubeconfigs that are to be added to the GTM config into the ./kubeconfigs-in directory.
+- Run ```./process-kubeconfigs``` to initially process the kubeconfigs, and re-run as new kubeconfigs are added.
+- Run ```./process-targets``` to scan each cluster for current node External IP addresses and to build the needed Terraform files.
+- Update tf.tfvars with the required variables
+-- Akamai 
 
